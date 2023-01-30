@@ -2,14 +2,14 @@
 title: "Results"
 format:
   gfm:
-    fig-format: pdf
+    fig-format: png
     embed-resources: true
     self-contained-math: true
 editor: visual
 crossref:
-  fig-title: '**Figure S**'
+  fig-title: '**Figure **'
   fig-labels: arabic
-  tbl-title: '**Table S**'
+  tbl-title: '**Table **'
   tbl-labels: arabic
   title-delim: ":"
 ---
