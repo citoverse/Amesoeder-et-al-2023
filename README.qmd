@@ -1,0 +1,135 @@
+---
+title: "Results"
+format: 
+  html:
+    fig-format: pdf
+    embed-resources: true
+    self-contained-math: true
+    keep-md: true
+editor: visual
+crossref:
+  fig-title: '**Figure S**'
+  fig-labels: arabic
+  tbl-title: '**Table S**'
+  tbl-labels: arabic
+  title-delim: ":"
+---
+
+```{r}
+#| echo: false
+#| include: false
+knitr::opts_chunk$set(fig.path="figures/", echo = FALSE)
+```
+
+## Benchmarking
+
+benchmarking cito and other neural network packages
+
+### Benchmark results
+
+```{r}
+#| warning: false
+#| message: false
+library(tidyverse)
+library(gridExtra)
+library(cito)
+library(raster)
+library(sp)
+library(rsample)
+library(latticeExtra)
+library(sp)
+library(ggplot2)
+library(maptools)
+results = readRDS("results/runtime_results.RDS")
+results = results[results$package != "NA", ]
+results$package = as.factor(results$package)
+levels(results$package)[c(2, 3)] = c('cito (cpu)', 'cito (gpu)')
+```
+
+```{r}
+#| label: fig-Fig_1
+#| fig-cap: "Predictions and ALE of bio9"
+#| fig-width: 11
+#| fig-height: 4.5
+#| warning: false
+#| message: false
+
+results_time = results %>% 
+  group_by(package, size) %>% 
+  summarise(time_mean = mean(t, na.rm=TRUE),
+            time_se = sd(t, na.rm=TRUE)/sqrt(sum(!is.na(t))))
+# %>% 
+#   pivot_wider(names_from = package, values_from = c(time_mean, time_se))
+
+colors = RColorBrewer::brewer.pal(5, "Set1")
+
+g1 = 
+  ggplot(data = results_time, aes(x = size, 
+                                  y = time_mean, 
+                                  ymin=time_mean - 1.96*time_se, 
+                                  ymax=time_mean + 1.96*time_se,
+                                  group = package)) +
+    geom_line(aes(color=package)) +
+    geom_ribbon(alpha=0.25, aes(color=NULL, fill = package)) + 
+    scale_fill_manual(values=colors) +
+    scale_color_manual(values=colors) +
+    xlab("Number of nodes in each hidden layer") + 
+    ylab("Runtime in seconds") +
+    labs(title = "", tag = "A") +
+    theme_bw() +
+    theme(legend.position = c(0.13, 0.77)) +
+    theme(axis.text.x = element_text(color = "black", size = 10),
+          axis.text.y = element_text(color = "black", size = 10),
+          plot.tag  = element_text(color = "black", size = 14, face = "bold")
+          )
+
+g2 = ggplot(data = results, aes(x = package, y = rmse, fill = package)) +
+  geom_boxplot()+ 
+    scale_color_manual(values=colors) +
+    xlab("Package") + 
+    ylab("RMSE") +
+    theme_bw() +
+    labs(title = "", tag = "B") +
+    #theme(legend.position = c(0.1, 0.85)) +
+    theme(legend.position = "none")+
+    theme(axis.text.x = element_text(color = "black", size = 10),
+          axis.text.y = element_text(color = "black", size = 10),
+          plot.tag  = element_text(color = "black", size = 14, face = "bold"))
+
+grid.arrange(g1, g2, nrow = 1, ncol = 2)
+```
+
+### Predictions and xAI
+
+```{r}
+#| label: fig-Fig_3
+#| fig-cap: "Predictions and ALE of bio9"
+#| fig-width: 8
+#| fig-height: 4
+#| warning: false
+#| message: false
+library(cito)
+library(raster)
+library(sp)
+library(rsample)
+library(latticeExtra)
+library(sp)
+library(ggplot2)
+library(maptools)
+library(gridExtra)
+results = readRDS("results/model.RDS")
+nn.fit = results$model
+nn.fit$use_model_epoch = length(nn.fit$weights)
+predictions = results$pred
+
+habitat_plot = 
+  spplot(predictions, colorkey = list(space = "left"), )
+
+g1 = habitat_plot
+
+#### xAI #####
+
+Ale = ALE(nn.fit, variable = "bio8")
+g2 = Ale$bio8 + theme_bw()+ ggtitle("") + xlab("Bioclim 8: Mean Temperature of Wettest Quarter") + ylab("Change in occurrence probability")
+
+```
