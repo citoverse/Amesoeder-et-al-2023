@@ -20,11 +20,22 @@ crossref:
 knitr::opts_chunk$set(fig.path="figures/", echo = FALSE)
 ```
 
-## Benchmarking
+## cito: An R package for training neural networks using torch
 
-benchmarking cito and other neural network packages
+This repository contains the code to reproduce the results in Amesöder et al., 'cito: An R package for training neural networks using torch'
 
-### Benchmark results
+### Benchmarking of runtime and error
+
+Setup: 5 hidden layers, nodes per layer were increased from 50 to 1,000 with a stepsize of 50. Dataset contained 20 predictors (sampled from a uniform distribution (0,1)) with 2,000 observations (1,000 were used for training and 1,000 for evaluation (RMSE)). Each step (number of nodes) were replicated 20 times.
+
+To run the benchmarking:
+
+```{r}
+#| eval: false
+source("code/runtime_comparison.R")
+```
+
+Results:
 
 ```{r}
 #| warning: false
@@ -39,6 +50,10 @@ library(latticeExtra)
 library(sp)
 library(ggplot2)
 library(maptools)
+library(neuralnet)
+library(brulee)
+library(h2o)
+library(cito)
 results = readRDS("results/runtime_results.RDS")
 results = results[results$package != "NA", ]
 results$package = as.factor(results$package)
@@ -47,7 +62,7 @@ levels(results$package)[c(2, 3)] = c('cito (cpu)', 'cito (gpu)')
 
 ```{r}
 #| label: fig-Fig_1
-#| fig-cap: "Predictions and ALE of bio9"
+#| fig-cap: "Comparison of different deep learning packages (brulee, h2o, neuralnet, and cito (CPU and GPU)) on different network sizes on an Intel Xeon 6128 and a Nvidia RTX 2080ti. The networks consist of five equally sized layers (50 to 1000 nodes with a step size of 50) and are trained on a simulated data set with 1000 observations. Panel (A) shows the runtime of the different packages and panel (B) shows the average root mean square error (RMSE) of the models on a holdout of size 1000 observations (RMSE was averaged over different network sizes). Each network was trained 20 times (the dataset was resampled each time)."
 #| fig-width: 11
 #| fig-height: 4.5
 #| warning: false
@@ -57,8 +72,6 @@ results_time = results %>%
   group_by(package, size) %>% 
   summarise(time_mean = mean(t, na.rm=TRUE),
             time_se = sd(t, na.rm=TRUE)/sqrt(sum(!is.na(t))))
-# %>% 
-#   pivot_wider(names_from = package, values_from = c(time_mean, time_se))
 
 colors = RColorBrewer::brewer.pal(5, "Set1")
 
@@ -89,7 +102,6 @@ g2 = ggplot(data = results, aes(x = package, y = rmse, fill = package)) +
     ylab("RMSE") +
     theme_bw() +
     labs(title = "", tag = "B") +
-    #theme(legend.position = c(0.1, 0.85)) +
     theme(legend.position = "none")+
     theme(axis.text.x = element_text(color = "black", size = 10),
           axis.text.y = element_text(color = "black", size = 10),
@@ -100,22 +112,25 @@ grid.arrange(g1, g2, nrow = 1, ncol = 2)
 
 ### Predictions and xAI
 
+Data and code to prepare the data can be found and downloaded at [Angelov 2020](https://doi.org/10.5281/zenodo.4048271)
+
+To train the model run:
+
+```{r}
+#| eval: false
+source("code/Elephant.R")
+```
+
+Results:
+
 ```{r}
 #| label: fig-Fig_3
-#| fig-cap: "Predictions and ALE of bio9"
+#| fig-cap: "Predictions for the African elephant from a DNN trained by cito. Panel (A) shows the predicted probability of occurrence of the African elephant. Panel (B) shows the accumulated local effect plot (ALE), i.e. the change of the predicted occurrence probability in response to the Bioclim variable 8 (mean temperature of the wettest quarter)."
 #| fig-width: 8
 #| fig-height: 4
 #| warning: false
 #| message: false
-library(cito)
-library(raster)
-library(sp)
-library(rsample)
-library(latticeExtra)
-library(sp)
-library(ggplot2)
-library(maptools)
-library(gridExtra)
+
 results = readRDS("results/model.RDS")
 nn.fit = results$model
 nn.fit$use_model_epoch = length(nn.fit$weights)
@@ -128,7 +143,14 @@ g1 = habitat_plot
 
 #### xAI #####
 
-Ale = ALE(nn.fit, variable = "bio8")
-g2 = Ale$bio8 + theme_bw()+ ggtitle("") + xlab("Bioclim 8: Mean Temperature of Wettest Quarter") + ylab("Change in occurrence probability")
+Ale = ALE(nn.fit, variable = "bio8", plot=FALSE)
+g2 = Ale$bio8 +  ggtitle("") + xlab("Bioclim 8: Mean Temperature of Wettest Quarter") + ylab("Change in occurrence probability")+ theme_bw()
+grid.arrange(g1, g2, nrow = 1, ncol = 2)
 
+```
+
+### Session info
+
+```{r}
+sessionInfo()
 ```
