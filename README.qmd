@@ -145,6 +145,7 @@ g1 = habitat_plot
 
 Ale = ALE(nn.fit, variable = "bio8", plot=FALSE)
 g2 = Ale$bio8 +  ggtitle("") + xlab("Bioclim 8: Mean Temperature of Wettest Quarter") + ylab("Change in occurrence probability")+ theme_bw()
+g2$layers[[1]]$aes_params$size = 1.2
 grid.arrange(g1, g2, nrow = 1, ncol = 2)
 
 ```
