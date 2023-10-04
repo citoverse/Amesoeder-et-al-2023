@@ -24,26 +24,56 @@ occ_data$label = as.integer(occ_data$label) - 1L
 rows = c(sample(rownames(occ_data[occ_data$label==0, ]), 2000), rownames(occ_data[occ_data$label==1, ]))
 data = occ_data[rows, ]
 
-##### Cito ######
 
-nn.fit <- dnn(label~., data = data, 
+
+
+##### Cito ######
+# Single fit to check for convergence / learning rate
+nn.single<- dnn(label~., data = data, 
               hidden = c(50, 50, 50), loss = "binomial",
               epochs = 50, lr = 0.1, 
               batchsize = 300,
-              validation = 0.1, shuffle = TRUE, 
-              alpha = 0.5, lambda = 0.005,
-              early_stopping = 10)
+              validation = 0.1, 
+              shuffle = TRUE, 
+              alpha = 0.5, 
+              lambda = 0.005,
+              early_stopping = 10,
+              device = "cuda",
+              bootstrap = 30L)
+
+
+nn.fit <- dnn(label~., data = data, 
+              hidden = c(50, 50, 50), 
+              loss = "binomial",
+              epochs = 50, 
+              lr = 0.1, 
+              batchsize = 300,
+              validation = 0.1, 
+              shuffle = TRUE, 
+              alpha = 0.5, 
+              lambda = 0.005,
+              early_stopping = 10,
+              device = "cuda",
+              bootstrap = 30L, 
+              bootstrap_parallel = 5L)
 
 nn.fit <- continue_training(
-              nn.fit, epochs = 32, changed_params = list(lr = 0.001),
-              continue_from = which.min(nn.fit$losses$valid_l))
+  nn.fit, epochs = 150, 
+  changed_params = list(lr = 0.05, lr_scheduler = config_lr_scheduler("reduce_on_plateau", patience = 8, factor = 0.8)),
+  parallel = 5L,
+  device = "cuda")
 
 
 
 ##### Predictions #########
 customPredictFun <- function(model, data) {
-  return(predict(model, data)[,1])
+  return(apply(predict(model, data), 2:3, mean)[,1])
 }
+
+customPredictFunSD <- function(model, data) {
+  return(apply(predict(model, data), 2:3, sd)[,1])
+}
+
 normalized_raster <- readRDS("data/normalized_raster.RDS")
 
 pr <-
@@ -51,5 +81,11 @@ pr <-
                   nn.fit,
                   fun = customPredictFun)
 
+pr_var <-
+  raster::predict(normalized_raster,
+                  nn.fit,
+                  fun = customPredictFunSD)
 
-saveRDS(list(model = nn.fit, pred = pr), "results/model.RDS")
+summary_nn = summary(nn.fit, device = "cuda")
+
+saveRDS(list(model = nn.fit, pred = pr, pred_var = pr_var, summ = summary_nn), "results/model.RDS")

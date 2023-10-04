@@ -133,20 +133,30 @@ Results:
 
 results = readRDS("results/model.RDS")
 nn.fit = results$model
-nn.fit$use_model_epoch = length(nn.fit$weights)
-predictions = results$pred
 
 habitat_plot = 
-  spplot(predictions, colorkey = list(space = "left"), )
+  spplot(results$pred, colorkey = list(space = "left"), )
 
 g1 = habitat_plot
 
-#### xAI #####
+habitat_plot_uncertain = 
+  spplot(results$pred_var, colorkey = list(space = "left"), )
 
-Ale = ALE(nn.fit, variable = "bio8", plot=FALSE)
-g2 = Ale$bio8 +  ggtitle("") + xlab("Bioclim 8: Mean Temperature of Wettest Quarter") + ylab("Change in occurrence probability")+ theme_bw()
-g2$layers[[1]]$aes_params$size = 1.2
+g2 = habitat_plot_uncertain
+
 grid.arrange(g1, g2, nrow = 1, ncol = 2)
+
+#### xAI #####
+summary_nn = results$summ
+
+print(results$summ)
+
+Ale_4 = ALE(nn.fit, variable = "bio4", plot=FALSE, device = "cuda")
+Ale_3 = ALE(nn.fit, variable = "bio3", plot=FALSE, device = "cuda")
+
+# g2 = Ale$bio8 +  ggtitle("") + xlab("Bioclim 8: Mean Temperature of Wettest Quarter") + ylab("Change in occurrence probability")+ theme_bw()
+# g2$layers[[1]]$aes_params$size = 1.2
+grid.arrange(Ale_3[[1]] ,Ale_4[[1]], nrow = 2, ncol = 1)
 
 ```
 

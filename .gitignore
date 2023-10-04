@@ -6,3 +6,4 @@ Results_files/
 *.html
 .DS_Store
 data/
+*.RDS
