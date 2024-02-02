@@ -160,7 +160,7 @@ predicted occurrence probability in response to the Bioclim variable 8
      [1] h2o_3.40.0.1        brulee_0.2.0        neuralnet_1.44.2   
      [4] maptools_1.1-8      latticeExtra_0.6-30 lattice_0.20-45    
      [7] rsample_1.1.1       raster_3.6-23       sp_1.6-0           
-    [10] cito_1.0.2          gridExtra_2.3       lubridate_1.9.2    
+    [10] cito_1.1            gridExtra_2.3       lubridate_1.9.2    
     [13] forcats_1.0.0       stringr_1.5.0       dplyr_1.1.1        
     [16] purrr_1.0.1         readr_2.1.4         tidyr_1.3.0        
     [19] tibble_3.2.1        ggplot2_3.4.1       tidyverse_2.0.0    

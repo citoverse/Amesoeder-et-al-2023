@@ -95,8 +95,9 @@ g1 =
           plot.tag  = element_text(color = "black", size = 14, face = "bold")
           )
 
-g2 = ggplot(data = results, aes(x = package, y = rmse, fill = package)) +
+g2 = ggplot(data = results, aes(x = package, y = rmse, fill = package, group = package)) +
   geom_boxplot()+ 
+    scale_fill_manual(values=colors) +
     scale_color_manual(values=colors) +
     xlab("Package") + 
     ylab("RMSE") +
