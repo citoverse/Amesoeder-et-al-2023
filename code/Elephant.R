@@ -39,7 +39,7 @@ nn.single<- dnn(label~., data = data,
               lambda = 0.005,
               early_stopping = 10,
               device = "cuda",
-              bootstrap = 30L)
+              bootstrap = FALSE)
 
 
 nn.fit <- dnn(label~., data = data, 

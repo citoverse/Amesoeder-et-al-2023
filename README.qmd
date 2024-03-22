@@ -22,11 +22,15 @@ knitr::opts_chunk$set(fig.path="figures/", echo = FALSE)
 
 ## cito: An R package for training neural networks using torch
 
-This repository contains the code to reproduce the results in Amesöder et al., 'cito: An R package for training neural networks using torch'
+This repository contains the code to reproduce the results in Amesöder et al., 'cito': An R package for training neural networks using torch'
 
 ### Benchmarking of runtime and error
 
 Setup: 5 hidden layers, nodes per layer were increased from 50 to 1,000 with a stepsize of 50. Dataset contained 20 predictors (sampled from a uniform distribution (0,1)) with 2,000 observations (1,000 were used for training and 1,000 for evaluation (RMSE)). Each step (number of nodes) were replicated 20 times.
+
+Runtime analysis: Models were fit 'cito' version 1.1 (no runtime difference to version 1.0.2)
+
+SDM: Models were fit with 'cito' version 1.0.2
 
 To run the benchmarking:
 
@@ -54,7 +58,7 @@ library(neuralnet)
 library(brulee)
 library(h2o)
 library(cito)
-results = readRDS("results/runtime_results.RDS")
+results = readRDS("results/runtime_results_03_2024.RDS")
 results = results[results$package != "NA", ]
 results$package = as.factor(results$package)
 levels(results$package)[c(2, 3)] = c('cito (cpu)', 'cito (gpu)')
@@ -62,7 +66,7 @@ levels(results$package)[c(2, 3)] = c('cito (cpu)', 'cito (gpu)')
 
 ```{r}
 #| label: fig-Fig_1
-#| fig-cap: "Comparison of different deep learning packages (brulee, h2o, neuralnet, and cito (CPU and GPU)) on different network sizes on an Intel Xeon 6128 and a Nvidia RTX 2080ti. The networks consist of five equally sized layers (50 to 1000 nodes with a step size of 50) and are trained on a simulated data set with 1000 observations. Panel (A) shows the runtime of the different packages and panel (B) shows the average root mean square error (RMSE) of the models on a holdout of size 1000 observations (RMSE was averaged over different network sizes). Each network was trained 20 times (the dataset was resampled each time)."
+#| fig-cap: "Comparison of different deep learning packages (brulee, h2o, neuralnet, and cito (CPU and GPU)) on different network sizes on an Intel Xeon Gold 6246R and a Nvidia RTX A5000. The networks consist of five equally sized layers (50 to 1000 nodes with a step size of 50) and are trained on a simulated data set with 1000 observations. Panel (A) shows the runtime of the different packages and panel (B) shows the average root mean square error (RMSE) of the models on a holdout of size 1000 observations (RMSE was averaged over different network sizes). Each network was trained 20 times (the dataset was resampled each time)."
 #| fig-width: 11
 #| fig-height: 4.5
 #| warning: false
@@ -87,7 +91,7 @@ g1 =
     scale_color_manual(values=colors) +
     xlab("Number of nodes in each hidden layer") + 
     ylab("Runtime in seconds") +
-    labs(title = "", tag = "A") +
+    labs(title = "", tag = "(A)") +
     theme_bw() +
     theme(legend.position = c(0.13, 0.77)) +
     theme(axis.text.x = element_text(color = "black", size = 10),
@@ -102,13 +106,21 @@ g2 = ggplot(data = results, aes(x = package, y = rmse, fill = package, group = p
     xlab("Package") + 
     ylab("RMSE") +
     theme_bw() +
-    labs(title = "", tag = "B") +
+    labs(title = "", tag = "(B)") +
     theme(legend.position = "none")+
     theme(axis.text.x = element_text(color = "black", size = 10),
           axis.text.y = element_text(color = "black", size = 10),
           plot.tag  = element_text(color = "black", size = 14, face = "bold"))
 
 grid.arrange(g1, g2, nrow = 1, ncol = 2)
+```
+
+```{r}
+#| echo: false
+#| results: hide
+pdf("figures/fig_1.pdf", width = 11, height = 4.5)
+grid.arrange(g1, g2, nrow = 1, ncol = 2)
+dev.off()
 ```
 
 ### Predictions and xAI
@@ -159,6 +171,18 @@ Ale_3 = ALE(nn.fit, variable = "bio3", plot=FALSE, device = "cuda")
 # g2$layers[[1]]$aes_params$size = 1.2
 grid.arrange(Ale_3[[1]] ,Ale_4[[1]], nrow = 2, ncol = 1)
 
+```
+
+```{r}
+#| echo: false
+#| results: hide
+pdf(file="figures/fig_2.pdf", width = 8, height = 4)
+grid.arrange(g1, g2, nrow = 1, ncol = 2)
+dev.off()
+
+cairo_pdf(file="figures/fig_3.pdf", width = 6, height = 10)
+grid.arrange(Ale_3[[1]] ,Ale_4[[1]], nrow = 2, ncol = 1)
+dev.off()
 ```
 
 ### Session info

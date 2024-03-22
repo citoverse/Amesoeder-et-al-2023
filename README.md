@@ -4,7 +4,7 @@ Results
 ## cito: An R package for training neural networks using torch
 
 This repository contains the code to reproduce the results in Amesöder
-et al., ‘cito: An R package for training neural networks using torch’
+et al., ‘cito’: An R package for training neural networks using torch’
 
 ### Benchmarking of runtime and error
 
@@ -14,24 +14,31 @@ uniform distribution (0,1)) with 2,000 observations (1,000 were used for
 training and 1,000 for evaluation (RMSE)). Each step (number of nodes)
 were replicated 20 times.
 
+Runtime analysis: Models were fit ‘cito’ version 1.1 (no runtime
+difference to version 1.0.2)
+
+SDM: Models were fit with ‘cito’ version 1.0.2
+
 To run the benchmarking:
 
 Results:
 
 <figure>
 <img src="figures/fig-Fig_1-1.png" id="fig-Fig_1"
-alt="Figure  1: Comparison of different deep learning packages (brulee, h2o, neuralnet, and cito (CPU and GPU)) on different network sizes on an Intel Xeon 6128 and a Nvidia RTX 2080ti. The networks consist of five equally sized layers (50 to 1000 nodes with a step size of 50) and are trained on a simulated data set with 1000 observations. Panel (A) shows the runtime of the different packages and panel (B) shows the average root mean square error (RMSE) of the models on a holdout of size 1000 observations (RMSE was averaged over different network sizes). Each network was trained 20 times (the dataset was resampled each time)." />
+alt="Figure  1: Comparison of different deep learning packages (brulee, h2o, neuralnet, and cito (CPU and GPU)) on different network sizes on an Intel Xeon Gold 6246R and a Nvidia RTX A5000. The networks consist of five equally sized layers (50 to 1000 nodes with a step size of 50) and are trained on a simulated data set with 1000 observations. Panel (A) shows the runtime of the different packages and panel (B) shows the average root mean square error (RMSE) of the models on a holdout of size 1000 observations (RMSE was averaged over different network sizes). Each network was trained 20 times (the dataset was resampled each time)." />
 <figcaption aria-hidden="true"><strong>Figure </strong> 1: Comparison of
 different deep learning packages (brulee, h2o, neuralnet, and cito (CPU
-and GPU)) on different network sizes on an Intel Xeon 6128 and a Nvidia
-RTX 2080ti. The networks consist of five equally sized layers (50 to
-1000 nodes with a step size of 50) and are trained on a simulated data
-set with 1000 observations. Panel (A) shows the runtime of the different
-packages and panel (B) shows the average root mean square error (RMSE)
-of the models on a holdout of size 1000 observations (RMSE was averaged
-over different network sizes). Each network was trained 20 times (the
-dataset was resampled each time).</figcaption>
+and GPU)) on different network sizes on an Intel Xeon Gold 6246R and a
+Nvidia RTX A5000. The networks consist of five equally sized layers (50
+to 1000 nodes with a step size of 50) and are trained on a simulated
+data set with 1000 observations. Panel (A) shows the runtime of the
+different packages and panel (B) shows the average root mean square
+error (RMSE) of the models on a holdout of size 1000 observations (RMSE
+was averaged over different network sizes). Each network was trained 20
+times (the dataset was resampled each time).</figcaption>
 </figure>
+
+    Warning: Removed 366 rows containing non-finite values (`stat_boxplot()`).
 
 ### Predictions and xAI
 
@@ -157,10 +164,10 @@ predicted occurrence probability in response to the Bioclim variable 8
     [1] stats     graphics  grDevices utils     datasets  methods   base     
 
     other attached packages:
-     [1] h2o_3.40.0.1        brulee_0.2.0        neuralnet_1.44.2   
-     [4] maptools_1.1-8      latticeExtra_0.6-30 lattice_0.20-45    
-     [7] rsample_1.1.1       raster_3.6-23       sp_1.6-0           
-    [10] cito_1.1            gridExtra_2.3       lubridate_1.9.2    
+     [1] h2o_3.44.0.3        brulee_0.3.0        neuralnet_1.44.2   
+     [4] maptools_1.1-6      latticeExtra_0.6-30 lattice_0.20-45    
+     [7] rsample_1.1.1       raster_3.6-20       sp_1.6-0           
+    [10] cito_1.0.2          gridExtra_2.3       lubridate_1.9.2    
     [13] forcats_1.0.0       stringr_1.5.0       dplyr_1.1.1        
     [16] purrr_1.0.1         readr_2.1.4         tidyr_1.3.0        
     [19] tibble_3.2.1        ggplot2_3.4.1       tidyverse_2.0.0    
@@ -168,16 +175,16 @@ predicted occurrence probability in response to the Bioclim variable 8
     loaded via a namespace (and not attached):
      [1] bit64_4.0.5        jsonlite_1.8.4     progress_1.2.2     yaml_2.3.7        
      [5] globals_0.16.2     pillar_1.9.0       backports_1.4.1    glue_1.6.2        
-     [9] torch_0.10.0       digest_0.6.31      RColorBrewer_1.1-3 checkmate_2.1.0   
+     [9] torch_0.11.0       digest_0.6.31      RColorBrewer_1.1-3 checkmate_2.1.0   
     [13] colorspace_2.1-0   htmltools_0.5.5    pkgconfig_2.0.3    listenv_0.9.0     
-    [17] scales_1.2.1       processx_3.8.0     terra_1.7-46       jpeg_0.1-10       
+    [17] scales_1.2.1       processx_3.8.0     terra_1.7-18       jpeg_0.1-10       
     [21] tzdb_0.3.0         timechange_0.2.0   generics_0.1.3     farver_2.1.1      
     [25] withr_2.5.0        furrr_0.3.1        cli_3.6.1          crayon_1.5.2      
-    [29] magrittr_2.0.3     deldir_1.0-9       evaluate_0.20      ps_1.7.3          
+    [29] magrittr_2.0.3     deldir_1.0-6       evaluate_0.20      ps_1.7.3          
     [33] future_1.32.0      fansi_1.0.4        parallelly_1.35.0  foreign_0.8-84    
     [37] prettyunits_1.1.1  tools_4.2.3        hms_1.1.3          lifecycle_1.0.3   
-    [41] interp_1.1-4       munsell_0.5.0      callr_3.7.3        compiler_4.2.3    
-    [45] parabar_1.1.0      rlang_1.1.0        grid_4.2.3         RCurl_1.98-1.12   
+    [41] interp_1.1-3       munsell_0.5.0      callr_3.7.3        compiler_4.2.3    
+    [45] parabar_1.1.1      rlang_1.1.3        grid_4.2.3         RCurl_1.98-1.12   
     [49] rstudioapi_0.14    bitops_1.0-7       labeling_0.4.2     rmarkdown_2.21    
     [53] gtable_0.3.3       codetools_0.2-19   R6_2.5.1           knitr_1.42        
     [57] fastmap_1.1.1      bit_4.0.5          utf8_1.2.3         filelock_1.0.2    

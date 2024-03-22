@@ -52,6 +52,9 @@ for( j in 1:length(model_size)){
       start_t <- Sys.time()
       fit<- cito::dnn(Y~. , data = data[1:1000,],
                            plot=F, verbose= F, epochs= 64L,
+                           activation = "relu",
+                            burnin = 64L,
+                           batchsize = 32L,
                            hidden = rep(model_size[j],layers),
                            optimizer = "sgd")
       end_t <- Sys.time()
@@ -68,6 +71,9 @@ for( j in 1:length(model_size)){
       fit<- cito::dnn(
                        Y~. , data = data[1:1000,],
                        plot=F, verbose= F, epochs= 64L,
+                       batchsize = 32L,
+                       activation = "relu",
+                       burnin = 64L,
                        hidden = rep(model_size[j],layers),
                        optimizer = "sgd",
                        device = "cuda")
@@ -123,9 +129,12 @@ for( j in 1:length(model_size)){
       end_t <- Sys.time()
       v_data <- h2o::as.h2o(data[1001:2000,])
       
+      h2o.performance(fit, train = TRUE) # training set metrics
+      h2o.performance(fit, valid = TRUE) 
+      
       df_times$package[5] <- "h2o"
       df_times$t[5] <- as.numeric(difftime(end_t,start_t,units = "secs"))
-      df_times$rmse[5] <- tryCatch(expr={sqrt(mean(unlist(h2o::h2o.predict(fit, v_data) - data$Y[1001:2000])^2))},error= function(e) return(NA))
+      df_times$rmse[5] <- tryCatch(expr={sqrt(mean((as.matrix(h2o::h2o.predict(fit, newdata = v_data))[,1] - data$Y[1001:2000])^2))},error= function(e) return(NA))
       
     }
 
@@ -133,7 +142,7 @@ for( j in 1:length(model_size)){
     df<- rbind(df,df_times)
     print(df, max = 100)
     
-    saveRDS(df, "results/runtime_results.RDS")
+    saveRDS(df, "results/runtime_results_03_2024.RDS")
   }
   
   for ( i in c(1:4)){
